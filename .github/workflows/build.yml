@@ -1,0 +1,37 @@
+name: Build
+
+on:
+  push:
+    branches: [ master, features/** ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    # MAUI Android compila igual en Linux que en Windows y no necesita nada específico de
+    # escritorio (a diferencia de VideoGameLibrary, que es WPF y solo compila en windows-latest).
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Instalar workload MAUI Android
+        run: dotnet workload install maui-android
+
+      - name: Crear SupabaseConfig.cs de prueba
+        # Infrastructure/Accounts/SupabaseConfig.cs está en .gitignore a propósito (ver README) --
+        # en un checkout limpio de CI no existe, y el proyecto no compila sin él. No hace falta que
+        # las claves sean reales para verificar que el código compila, así que basta con copiar la
+        # plantilla .example tal cual.
+        run: cp Infrastructure/Accounts/SupabaseConfig.cs.example Infrastructure/Accounts/SupabaseConfig.cs
+
+      - name: Restaurar dependencias
+        run: dotnet restore VideoGameLibraryAndroid.csproj
+
+      - name: Compilar (Release, net9.0-android)
+        run: dotnet build VideoGameLibraryAndroid.csproj -c Release -f net9.0-android --no-restore

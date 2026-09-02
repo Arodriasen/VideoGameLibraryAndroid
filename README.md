@@ -1,5 +1,7 @@
 # Mi Colección de Juegos (Android)
 
+![Build](https://github.com/Arodriasen/VideoGameLibraryAndroid/actions/workflows/build.yml/badge.svg)
+
 Aplicación para Android que permite catalogar tu colección personal de videojuegos escaneando el código de barras (UPC/EAN) de la caja con la cámara del móvil. Busca automáticamente título, plataforma, género, año y portada, y guarda todo en la misma base de datos PostgreSQL en la nube (por ejemplo [Neon](https://neon.tech), gratis) que usa la [versión de escritorio para Windows](https://github.com/Arodriasen/VideoGameLibrary) — inicia sesión con la misma cuenta en ambas y accede a tu colección desde cualquiera de los dos dispositivos.
 
 📖 Guía completa (primeros pasos, configurar la base de datos, claves de API, preguntas frecuentes) en la [wiki del proyecto](https://github.com/Arodriasen/VideoGameLibraryAndroid/wiki).
