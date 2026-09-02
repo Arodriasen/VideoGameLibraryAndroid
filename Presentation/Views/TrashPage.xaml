@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:VideoGameLibraryAndroid.Presentation.ViewModels"
+             x:Class="VideoGameLibraryAndroid.Presentation.Views.TrashPage"
+             x:DataType="vm:TrashViewModel"
+             Title="Papelera">
+
+    <Grid RowDefinitions="*">
+
+        <CollectionView ItemsSource="{Binding Items}">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Padding="30" Spacing="8">
+                    <Label Text="🗑️" FontSize="60" HorizontalOptions="Center" />
+                    <Label Text="La papelera está vacía" FontSize="16" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:TrashItem">
+                    <Grid Padding="12,10" ColumnDefinitions="56,*,Auto" ColumnSpacing="10">
+                        <Grid Grid.Column="0" HeightRequest="56" WidthRequest="56" Background="#EDE7F6">
+                            <Image Source="{Binding CoverImageSource}" Aspect="AspectFill" IsVisible="{Binding HasCover}" />
+                            <Label Text="🎮" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center"
+                                   IsVisible="{Binding HasCover, Converter={StaticResource InvertedBoolConverter}}" />
+                        </Grid>
+
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                            <Label Text="{Binding Title}" FontAttributes="Bold" FontSize="14" LineBreakMode="TailTruncation" />
+                            <Label Text="{Binding Platform}" FontSize="12" TextColor="{StaticResource Gray500}" />
+                            <Label Text="{Binding DaysLeftText}" FontSize="11" TextColor="OrangeRed" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="4">
+                            <Button Text="RESTAURAR" FontSize="10" Padding="8,4"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RestoreCommand}"
+                                    CommandParameter="{Binding .}" />
+                            <Button Text="ELIMINAR" FontSize="10" Padding="8,4" BackgroundColor="OrangeRed"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteForeverCommand}"
+                                    CommandParameter="{Binding .}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" VerticalOptions="Start" Margin="0,20,0,0" />
+
+    </Grid>
+
+</ContentPage>

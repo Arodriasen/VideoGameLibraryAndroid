@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:VideoGameLibraryAndroid.Presentation.ViewModels"
+             x:Class="VideoGameLibraryAndroid.Presentation.Views.LoginPage"
+             x:DataType="vm:LoginViewModel"
+             Title="Tu cuenta">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="12" VerticalOptions="Center">
+
+            <Label Text="Inicia sesión para que tu cadena de conexión y tus claves de API viajen con tu cuenta, no solo con este dispositivo."
+                   FontSize="13" Margin="0,0,0,12" />
+
+            <Entry Placeholder="Correo electrónico" Text="{Binding Email}" Keyboard="Email" />
+            <Entry Placeholder="Contraseña" Text="{Binding Password}" IsPassword="True" />
+
+            <HorizontalStackLayout Spacing="8" Margin="0,4,0,0">
+                <Switch IsToggled="{Binding RememberMe}" />
+                <Label Text="Recordarme" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <Label Text="¿Olvidaste tu contraseña?"
+                   TextColor="{StaticResource Primary}" TextDecorations="Underline"
+                   HorizontalOptions="End" Margin="0,4,0,0">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoToForgotPasswordCommand}" />
+                </Label.GestureRecognizers>
+            </Label>
+
+            <Button Text="INICIAR SESIÓN" Command="{Binding SignInCommand}" Margin="0,16,0,0" />
+            <Button Text="CREAR CUENTA" Command="{Binding SignUpCommand}" />
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Margin="0,12,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

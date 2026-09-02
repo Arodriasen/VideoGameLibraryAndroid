@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:VideoGameLibraryAndroid.Presentation.ViewModels"
+             xmlns:conv="clr-namespace:VideoGameLibraryAndroid.Presentation.Converters"
+             x:Class="VideoGameLibraryAndroid.Presentation.Views.MainPage"
+             x:DataType="vm:MainViewModel"
+             Title="Mi Colección de Juegos">
+
+    <!-- Sustituye el texto del título por el logo de la app; el Title de arriba se conserva
+         igualmente (nombre de la app en el selector de tareas de Android, accesibilidad). -->
+    <Shell.TitleView>
+        <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
+            <Image Source="app_logo.svg" HeightRequest="30" WidthRequest="30" />
+            <Label Text="Mi Colección" FontSize="19" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" />
+        </HorizontalStackLayout>
+    </Shell.TitleView>
+
+    <ContentPage.Resources>
+        <conv:RatingToStarColorConverter x:Key="RatingToStarColor" />
+        <conv:RatingToStarSourceConverter x:Key="RatingToStarSource" />
+    </ContentPage.Resources>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem IconImageSource="icon_trash.svg" Clicked="OnTrashClicked" Order="Primary" Priority="1" />
+        <ToolbarItem IconImageSource="icon_settings.svg" Clicked="OnSettingsClicked" Order="Primary" Priority="2" />
+    </ContentPage.ToolbarItems>
+
+    <Grid>
+
+        <!-- Capa de arranque: login/conexión, antes de que haya colección que mostrar -->
+        <VerticalStackLayout x:Name="ConnectingLayer"
+                              VerticalOptions="Center" HorizontalOptions="Center"
+                              Padding="30" Spacing="20">
+            <ActivityIndicator x:Name="LoadingIndicator" IsRunning="True" />
+            <Label x:Name="LblStatus" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" />
+        </VerticalStackLayout>
+
+        <!-- Capa de contenido: la colección real, oculta hasta que ConnectingLayer termina -->
+        <Grid x:Name="ContentLayer" IsVisible="False" RowDefinitions="Auto,Auto,*">
+
+            <!-- Buscador + filtro + orden. Los dos ImageButton pasan de 34 a 48 px: 34 estaba
+                 por debajo del mínimo táctil de Android (48 dp) y se fallaba el toque. -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="4" Margin="4,0,8,0" VerticalOptions="Center">
+                <SearchBar Grid.Column="0" Placeholder="Buscar por título, plataforma o código de barras..."
+                           Text="{Binding SearchText}" />
+
+                <!-- Filtro/orden: solo el icono, sin círculo de fondo (mismo criterio que el
+                     escritorio, PackIcon "FilterVariant"/"ImportExport" a secas sobre la barra).
+                     Un puntito del morado de marca avisa si hay algún filtro aplicado. Border en
+                     vez de BoxView.CornerRadius, que en Android dejaba una sombra cuadrada detrás
+                     del círculo por su elevación por defecto. -->
+                <Grid Grid.Column="1" WidthRequest="48" HeightRequest="48">
+                    <ImageButton Source="icon_filter.svg" Command="{Binding OpenFiltersCommand}"
+                                 WidthRequest="48" HeightRequest="48" Padding="12"
+                                 BackgroundColor="Transparent" />
+                    <Border IsVisible="{Binding HasActiveFilters}" BackgroundColor="{StaticResource Primary}"
+                            StrokeShape="RoundRectangle 4" Stroke="White" StrokeThickness="1.5"
+                            WidthRequest="8" HeightRequest="8"
+                            HorizontalOptions="End" VerticalOptions="Start" Margin="0,9,9,0"
+                            InputTransparent="True" />
+                </Grid>
+
+                <ImageButton Grid.Column="2" Source="icon_sort.svg" Clicked="OnSortClicked"
+                             WidthRequest="48" HeightRequest="48" Padding="12"
+                             BackgroundColor="Transparent" />
+            </Grid>
+
+            <!-- Selector colección / deseados.
+                 Antes: dos botones enormes con solo un emoji (🎮 / ❤), sin etiqueta, y el estado
+                 activo distinguible únicamente por el relleno morado, no se entendía qué eran.
+                 Ahora: un control segmentado bajo (44 px) con las palabras, dentro de un carril
+                 con borde; el activo lleva el morado de marca y el inactivo es transparente.
+                 Mismos comandos y CommandParameter que antes, así que el ViewModel no cambia. -->
+            <Border Grid.Row="1" Margin="12,14,12,8" Padding="3"
+                    StrokeShape="RoundRectangle 10"
+                    Stroke="{AppThemeBinding Light={StaticResource SurfaceLineLight}, Dark={StaticResource SurfaceLineDark}}"
+                    StrokeThickness="1"
+                    BackgroundColor="Transparent">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="3">
+
+                    <!-- Colección -->
+                    <Border Grid.Column="0" StrokeShape="RoundRectangle 8" Stroke="Transparent"
+                            StrokeThickness="0" HeightRequest="44" Padding="0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ToggleWishlistViewCommand}" CommandParameter="false" />
+                        </Border.GestureRecognizers>
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                                <Style.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsWishlistView}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="Transparent" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <Label HorizontalOptions="Center" VerticalOptions="Center" FontSize="14" InputTransparent="True">
+                            <Label.Style>
+                                <Style TargetType="Label">
+                                    <Setter Property="TextColor" Value="White" />
+                                    <Setter Property="FontAttributes" Value="Bold" />
+                                    <Style.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsWishlistView}" Value="True">
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                                            <Setter Property="FontAttributes" Value="None" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Label.Style>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Colección" />
+                                    <Span Text="  " />
+                                    <Span Text="{Binding CollectionCount}" FontSize="12" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Border>
+
+                    <!-- Deseados -->
+                    <Border Grid.Column="1" StrokeShape="RoundRectangle 8" Stroke="Transparent"
+                            StrokeThickness="0" HeightRequest="44" Padding="0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ToggleWishlistViewCommand}" CommandParameter="true" />
+                        </Border.GestureRecognizers>
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BackgroundColor" Value="Transparent" />
+                                <Style.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsWishlistView}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <Label HorizontalOptions="Center" VerticalOptions="Center" FontSize="14" InputTransparent="True">
+                            <Label.Style>
+                                <Style TargetType="Label">
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                                    <Setter Property="FontAttributes" Value="None" />
+                                    <Style.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsWishlistView}" Value="True">
+                                            <Setter Property="TextColor" Value="White" />
+                                            <Setter Property="FontAttributes" Value="Bold" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Label.Style>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Deseados" />
+                                    <Span Text="  " />
+                                    <Span Text="{Binding WishlistCount}" FontSize="12" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Border>
+
+                </Grid>
+            </Border>
+
+            <RefreshView Grid.Row="2" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+                <!-- SelectionMode="None": el naranja no era un VisualState de MAUI en absoluto,
+                     confirmado decompilando Microsoft.Maui.Controls.dll: SelectableViewHolder pinta
+                     ese color directamente como Background/Foreground nativos del ItemView de Android
+                     (resuelto de android:attr/colorControlHighlight) un nivel POR ENCIMA del Border,
+                     así que ningún VisualState puesto en la tarjeta podía llegar a tocarlo, ni
+                     "Pressed" (nunca se dispara) ni "Selected" (llega tarde, el naranja ya está pintado
+                     por fuera). Con SelectionMode="None" ese código ni se ejecuta. El velo morado ahora
+                     se hace a mano con un "flash" en OnCardTapped (ver más abajo). -->
+                <CollectionView ItemsSource="{Binding Games}" SelectionMode="None">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical" Span="2" />
+                    </CollectionView.ItemsLayout>
+
+                    <CollectionView.EmptyView>
+                        <!-- El emoji 🎮 a 60 px se sustituye por el logo de la app: mismo hueco,
+                             pero sin depender de la fuente de emoji del sistema. -->
+                        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Padding="30" Spacing="10">
+                            <Image Source="app_logo.svg" HeightRequest="64" WidthRequest="64" Opacity="0.5"
+                                   HorizontalOptions="Center" />
+                            <Label Text="{Binding EmptyTitle}" FontSize="16" HorizontalTextAlignment="Center" />
+                            <Label Text="{Binding EmptySubtitle}" FontSize="13"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:GameCardItem">
+                            <!-- Tarjeta "póster": la carátula ocupa toda la tarjeta y el título/plataforma/
+                                 estrellas van superpuestos abajo sobre una veladura oscura degradada, en vez
+                                 de una foto pequeña con una franja de texto en blanco debajo. -->
+                            <!-- Sin sombra: en Android nunca se consiguió que recortara bien a las
+                                 esquinas redondeadas (ni Border.Shadow, ni una segunda Border simulándola),
+                                 así que se quita del todo; solo el borde fino de 1px, la tarjeta encajada
+                                 justa a la carátula. -->
+                            <Border Margin="8" Padding="0" StrokeShape="RoundRectangle 12"
+                                    Stroke="{AppThemeBinding Light={StaticResource SurfaceLineLight}, Dark={StaticResource SurfaceLineDark}}"
+                                    StrokeThickness="1">
+                                <!-- Ningún VisualState de MAUI puede tocar el resaltado nativo de Android
+                                     (ver nota en el CollectionView de arriba); en vez de perseguir un
+                                     estado nativo, OnCardTapped enciende y apaga PressOverlay a mano
+                                     ("flash" morado) y solo entonces ejecuta la navegación. -->
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnCardTapped" />
+                                </Border.GestureRecognizers>
+                                <!-- 210 en vez de 190: el título pasa a dos líneas (MaxLines) y con 190
+                                     la segunda línea se comía las estrellas en los títulos largos. -->
+                                <Grid HeightRequest="210">
+                                    <Image Source="{Binding CoverImageSource}" Aspect="AspectFill"
+                                           IsVisible="{Binding HasCover}" />
+                                    <!-- Portada ausente: logo de la app en vez del emoji 🎮 -->
+                                    <Grid Background="{StaticResource Primary}"
+                                          IsVisible="{Binding HasCover, Converter={StaticResource InvertedBoolConverter}}">
+                                        <Image Source="app_logo.svg" HeightRequest="52" WidthRequest="52" Opacity="0.55"
+                                               HorizontalOptions="Center" VerticalOptions="Center" />
+                                    </Grid>
+
+                                    <!-- Veladura degradada solo en el tercio inferior, para que el texto
+                                         blanco sea legible encima de cualquier carátula. Border en vez de
+                                         BoxView, con solo las esquinas inferiores redondeadas a juego con
+                                         la tarjeta: un BoxView aquí no respetaba el recorte redondeado del
+                                         Border exterior en Android y dejaba una esquina cuadrada grisácea
+                                         asomando por debajo de las esquinas inferiores de la tarjeta. -->
+                                    <Border VerticalOptions="End" HeightRequest="110"
+                                            StrokeShape="RoundRectangle 0,0,12,12" StrokeThickness="0" Padding="0">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                <GradientStop Color="Transparent" Offset="0.0" />
+                                                <GradientStop Color="#DE000000" Offset="1.0" />
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                    </Border>
+
+                                    <!-- Overlay superior de "toque": encima de todo, invisible en reposo.
+                                         Reemplaza el resaltado naranja nativo de CollectionView (ya quitado
+                                         con SelectionMode="None") por el morado de marca. TargetName porque
+                                         el VisualState vive en el Border exterior, no en este elemento. -->
+                                    <BoxView x:Name="PressOverlay" BackgroundColor="{StaticResource Primary}"
+                                             Opacity="0" InputTransparent="True" />
+
+                                    <VerticalStackLayout VerticalOptions="End" Padding="10,8" Spacing="2">
+                                        <Label Text="{Binding Title}" FontAttributes="Bold" FontSize="14"
+                                               TextColor="{StaticResource OnCover}"
+                                               LineBreakMode="TailTruncation" MaxLines="2" />
+                                        <Label FontSize="11" TextColor="{StaticResource OnCoverMuted}" LineBreakMode="TailTruncation">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding Platform}" />
+                                                    <Span Text=" · " />
+                                                    <Span Text="{Binding YearText}" />
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <!-- Estrellas propias en SVG (rellena/contorno) en vez del carácter "★" de la
+                                             fuente del sistema: se ven idénticas en cualquier Android y la vacía es
+                                             un contorno de verdad, no una gris rellena. -->
+                                        <HorizontalStackLayout Spacing="2" Margin="0,3,0,0">
+                                            <Image Source="{Binding Rating, Converter={StaticResource RatingToStarSource}, ConverterParameter=1}" HeightRequest="14" WidthRequest="14" />
+                                            <Image Source="{Binding Rating, Converter={StaticResource RatingToStarSource}, ConverterParameter=2}" HeightRequest="14" WidthRequest="14" />
+                                            <Image Source="{Binding Rating, Converter={StaticResource RatingToStarSource}, ConverterParameter=3}" HeightRequest="14" WidthRequest="14" />
+                                            <Image Source="{Binding Rating, Converter={StaticResource RatingToStarSource}, ConverterParameter=4}" HeightRequest="14" WidthRequest="14" />
+                                            <Image Source="{Binding Rating, Converter={StaticResource RatingToStarSource}, ConverterParameter=5}" HeightRequest="14" WidthRequest="14" />
+                                            <Label Text="{Binding RatingText}" IsVisible="{Binding HasRating}" FontSize="11"
+                                                   TextColor="{StaticResource OnCoverMuted}" Margin="3,0,0,0" />
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </RefreshView>
+
+            <!-- Botón flotante "Añadir": círculo con "+" a secas, sin texto; 56 px de alto/ancho,
+                 por encima del mínimo táctil de Android (48 dp). -->
+            <Button Grid.Row="2" Text="+" FontSize="26" FontAttributes="Bold"
+                    HeightRequest="56" WidthRequest="56" Padding="0"
+                    CornerRadius="28" BackgroundColor="{StaticResource Primary}" TextColor="White"
+                    HorizontalOptions="End" VerticalOptions="End" Margin="20"
+                    Command="{Binding AddCommand}" />
+        </Grid>
+
+    </Grid>
+
+</ContentPage>

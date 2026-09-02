@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:VideoGameLibraryAndroid.Presentation.ViewModels"
+             xmlns:conv="clr-namespace:VideoGameLibraryAndroid.Presentation.Converters"
+             x:Class="VideoGameLibraryAndroid.Presentation.Views.GameEditPage"
+             x:DataType="vm:GameEditViewModel"
+             Title="{Binding PageTitle}">
+
+    <ContentPage.Resources>
+        <conv:RatingToStarColorConverter x:Key="RatingToStarColor" />
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="10">
+
+            <Button Text="ESCANEAR CÓDIGO DE BARRAS" Command="{Binding ScanCommand}"
+                    IsVisible="{Binding IsNewGame}" Margin="0,0,0,4" />
+            <Label Text="{Binding Barcode, StringFormat='Código: {0}'}" FontSize="12"
+                   TextColor="{StaticResource Gray500}" IsVisible="{Binding IsNewGame}" />
+
+            <!-- Mismos campos y mismo orden que el formulario del escritorio (GameEditDialog).
+                 La lupa junto al título reintenta la búsqueda por nombre cuando el escaneo no
+                 encontró nada (o para un alta sin escanear): mismo criterio que la lupa del
+                 escritorio junto al campo Título. -->
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="4">
+                <Entry Grid.Column="0" Placeholder="Título *" Text="{Binding Title}" />
+                <ImageButton Grid.Column="1" Source="icon_search.svg" Clicked="OnSearchByNameClicked"
+                             WidthRequest="44" HeightRequest="44" Padding="10"
+                             BackgroundColor="Transparent" VerticalOptions="Center" />
+            </Grid>
+            <Entry Placeholder="Plataforma" Text="{Binding Platform}" />
+            <Entry Placeholder="Editorial" Text="{Binding Publisher}" />
+            <Entry Placeholder="Género" Text="{Binding Genre}" />
+            <Entry Placeholder="Etiquetas — libres, separadas por comas" Text="{Binding Tags}" />
+            <Entry Placeholder="Año" Text="{Binding YearText}" Keyboard="Numeric" />
+
+            <Label Text="Puntuación" FontSize="12" TextColor="{StaticResource Gray500}" Margin="0,8,0,0" />
+            <HorizontalStackLayout Spacing="10">
+                <Label Text="★" FontSize="30" TextColor="{Binding Rating, Converter={StaticResource RatingToStarColor}, ConverterParameter=1}">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="1" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label Text="★" FontSize="30" TextColor="{Binding Rating, Converter={StaticResource RatingToStarColor}, ConverterParameter=2}">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="2" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label Text="★" FontSize="30" TextColor="{Binding Rating, Converter={StaticResource RatingToStarColor}, ConverterParameter=3}">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="3" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label Text="★" FontSize="30" TextColor="{Binding Rating, Converter={StaticResource RatingToStarColor}, ConverterParameter=4}">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="4" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label Text="★" FontSize="30" TextColor="{Binding Rating, Converter={StaticResource RatingToStarColor}, ConverterParameter=5}">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="5" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="8" Margin="0,12,0,0">
+                <Switch IsToggled="{Binding Played}" />
+                <Label Text="Jugado" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="8" Margin="0,4,0,0">
+                <Switch IsToggled="{Binding IsWishlist}" />
+                <Label Text="Está en mi lista de deseos" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <Editor Placeholder="Notas personales" Text="{Binding Notes}" AutoSize="TextChanges" Margin="0,8,0,0" />
+
+            <Button Text="GUARDAR" Command="{Binding SaveCommand}" Margin="0,20,0,0"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

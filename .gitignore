@@ -1,0 +1,32 @@
+# Build output
+bin/
+obj/
+publish/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# VS Code
+.vscode/
+
+# NuGet
+*.nupkg
+**/packages/*
+!**/packages/build/
+
+# Android / MAUI
+*.keystore
+*.jks
+*.apk
+*.aab
+
+# Chuleta personal, no para el repo
+RELEASE-CHEATSHEET.md
+
+# Claves del proyecto Supabase personal -- ver SupabaseConfig.cs.example
+Infrastructure/Accounts/SupabaseConfig.cs

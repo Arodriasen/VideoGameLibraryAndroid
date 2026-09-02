@@ -1,0 +1,89 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- Solo se tiene instalado el workload maui-android (ver memoria del proyecto):
+		     iOS/MacCatalyst/Windows/Tizen quedan fuera hasta que haga falta alguno. -->
+		<TargetFrameworks>net9.0-android</TargetFrameworks>
+
+		<!-- Note for MacCatalyst:
+		The default runtime is maccatalyst-x64, except in Release config, in which case the default is maccatalyst-x64;maccatalyst-arm64.
+		When specifying both architectures, use the plural <RuntimeIdentifiers> instead of the singular <RuntimeIdentifier>.
+		The Mac App Store will NOT accept apps with ONLY maccatalyst-arm64 indicated;
+		either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
+		<!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
+
+		<OutputType>Exe</OutputType>
+		<RootNamespace>VideoGameLibraryAndroid</RootNamespace>
+		<UseMaui>true</UseMaui>
+		<SingleProject>true</SingleProject>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<!-- Display name -->
+		<ApplicationTitle>VideoGameLibraryAndroid</ApplicationTitle>
+
+		<!-- App Identifier -->
+		<ApplicationId>com.arodriasen.videogamelibrary</ApplicationId>
+
+		<!-- Versions -->
+		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+		<ApplicationVersion>1</ApplicationVersion>
+
+		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
+		<WindowsPackageType>None</WindowsPackageType>
+
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- App Icon -->
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#673AB7" />
+
+		<!-- Splash Screen -->
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#673AB7" BaseSize="128,128" />
+
+		<!-- Images -->
+		<MauiImage Include="Resources\Images\*" />
+		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
+		<!-- Iconos de la toolbar (Ajustes/Papelera): un poco más grandes que el 24x24 por defecto
+		     de un PackIcon de Material Design, para que se noten más en la barra superior. -->
+		<MauiImage Update="Resources\Images\icon_settings.svg" Resize="True" BaseSize="30,30" />
+		<MauiImage Update="Resources\Images\icon_trash.svg" Resize="True" BaseSize="30,30" />
+		<!-- Iconos EDITAR/ELIMINAR flotantes de GameDetailPage, sobre un círculo blanco de fondo. -->
+		<MauiImage Update="Resources\Images\icon_pencil.svg" Resize="True" BaseSize="22,22" />
+		<MauiImage Update="Resources\Images\icon_trash_red.svg" Resize="True" BaseSize="22,22" />
+		<!-- Logo en el Shell.TitleView de MainPage, sustituye al texto del título. -->
+		<MauiImage Update="Resources\Images\app_logo.svg" Resize="True" BaseSize="32,32" />
+		<!-- Filtro/orden junto al buscador de MainPage. -->
+		<MauiImage Update="Resources\Images\icon_filter.svg" Resize="True" BaseSize="22,22" />
+		<MauiImage Update="Resources\Images\icon_sort.svg" Resize="True" BaseSize="22,22" />
+		<!-- Alternar tema claro/oscuro, toolbar de MainPage. -->
+		<MauiImage Update="Resources\Images\icon_theme_moon.svg" Resize="True" BaseSize="30,30" />
+		<MauiImage Update="Resources\Images\icon_theme_sun.svg" Resize="True" BaseSize="30,30" />
+
+		<!-- Custom Fonts -->
+		<MauiFont Include="Resources\Fonts\*" />
+
+		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
+		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="BarcodeScanning.Native.Maui" Version="2.2.1" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.8" />
+
+		<!-- Mismas versiones que VideoGameLibrary (escritorio) para Domain/Infrastructure portados tal cual -->
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="ClosedXML" Version="0.104.2" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+		<PackageReference Include="Supabase" Version="1.6.2" />
+	</ItemGroup>
+
+</Project>

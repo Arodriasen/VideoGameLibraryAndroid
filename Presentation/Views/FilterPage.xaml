@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:VideoGameLibraryAndroid.Presentation.ViewModels"
+             x:Class="VideoGameLibraryAndroid.Presentation.Views.FilterPage"
+             x:DataType="vm:FilterViewModel"
+             Title="Filtros">
+
+    <ContentPage.Resources>
+        <DataTemplate x:Key="OptionItemTemplate" x:DataType="vm:FilterOptionItem">
+            <HorizontalStackLayout Spacing="8">
+                <CheckBox IsChecked="{Binding IsSelected}" Color="{StaticResource Primary}" />
+                <Label Text="{Binding Name}" FontSize="15" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+        </DataTemplate>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="*,Auto">
+
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Padding="20,16" Spacing="18">
+
+                <VerticalStackLayout IsVisible="{Binding HasPlatforms}" Spacing="4">
+                    <Label Text="PLATAFORMA" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Platforms}"
+                                         BindableLayout.ItemTemplate="{StaticResource OptionItemTemplate}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout IsVisible="{Binding HasGenres}" Spacing="4">
+                    <Label Text="GÉNERO" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Genres}"
+                                         BindableLayout.ItemTemplate="{StaticResource OptionItemTemplate}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout IsVisible="{Binding HasTags}" Spacing="4">
+                    <Label Text="ETIQUETAS" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Tags}"
+                                         BindableLayout.ItemTemplate="{StaticResource OptionItemTemplate}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout IsVisible="{Binding HasYears}" Spacing="4">
+                    <Label Text="AÑO" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Years}"
+                                         BindableLayout.ItemTemplate="{StaticResource OptionItemTemplate}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="PUNTUACIÓN" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Ratings}"
+                                         BindableLayout.ItemTemplate="{StaticResource OptionItemTemplate}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="ESTADO" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Played}"
+                                         BindableLayout.ItemTemplate="{StaticResource OptionItemTemplate}" />
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="10" Padding="20,10,20,16">
+            <Button Grid.Column="0" Text="LIMPIAR" Command="{Binding ClearAllCommand}"
+                    BackgroundColor="{StaticResource Secondary}" TextColor="{StaticResource Primary}" />
+            <Button Grid.Column="1" Text="APLICAR" Command="{Binding ApplyCommand}" />
+        </Grid>
+
+    </Grid>
+
+</ContentPage>

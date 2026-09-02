@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:VideoGameLibraryAndroid.Presentation.ViewModels"
+             x:Class="VideoGameLibraryAndroid.Presentation.Views.SettingsPage"
+             x:DataType="vm:SettingsViewModel"
+             Title="Ajustes">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="16">
+
+            <Label Text="Base de datos"
+                   FontAttributes="Bold"
+                   FontSize="18" />
+            <Label Text="Cadena de conexión de tu base de datos en Neon (la misma que usas en la app de escritorio)."
+                   FontSize="13" />
+            <Editor x:Name="EntryConnectionString"
+                    Text="{Binding ConnectionString}"
+                    AutoSize="TextChanges"
+                    Placeholder="Host=...;Database=...;Username=...;Password=...;SSL Mode=Require;" />
+
+            <BoxView HeightRequest="1" Color="#33000000" Margin="0,8" />
+
+            <Label Text="Claves de API (opcionales)"
+                   FontAttributes="Bold"
+                   FontSize="18" />
+            <Label Text="Sin ellas, el escaneo de código de barras sigue funcionando con las fuentes que no requieren clave."
+                   FontSize="13" />
+
+            <Label Text="ScanDex Token" FontSize="13" />
+            <Entry Text="{Binding ScanDexToken}" />
+
+            <Label Text="IGDB Client Id" FontSize="13" />
+            <Entry Text="{Binding IgdbClientId}" />
+
+            <Label Text="IGDB Client Secret" FontSize="13" />
+            <Entry Text="{Binding IgdbClientSecret}" IsPassword="True" />
+
+            <Label Text="RAWG API Key" FontSize="13" />
+            <Entry Text="{Binding RawgApiKey}" />
+
+            <Label Text="TheGamesDB API Key" FontSize="13" />
+            <Entry Text="{Binding TheGamesDbApiKey}" />
+
+            <Button Text="GUARDAR"
+                    Command="{Binding SaveCommand}"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                    Margin="0,16,0,0" />
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                IsVisible="{Binding IsBusy}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

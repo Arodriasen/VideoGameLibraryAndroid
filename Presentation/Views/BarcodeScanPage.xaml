@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:scanner="clr-namespace:BarcodeScanning;assembly=BarcodeScanning.Native.Maui"
+             x:Class="VideoGameLibraryAndroid.Presentation.Views.BarcodeScanPage"
+             Title="Escanear código de barras">
+
+    <Grid>
+        <scanner:CameraView x:Name="Scanner" OnDetectionFinished="OnDetectionFinished" />
+
+        <Label Text="Apunta a la cámara al código de barras de la caja"
+               TextColor="White" BackgroundColor="#88000000" FontSize="14"
+               HorizontalTextAlignment="Center" Padding="12"
+               HorizontalOptions="Fill" VerticalOptions="End" Margin="0,0,0,40" />
+    </Grid>
+
+</ContentPage>

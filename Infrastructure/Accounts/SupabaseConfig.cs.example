@@ -1,0 +1,10 @@
+namespace VideoGameLibraryAndroid.Infrastructure.Accounts;
+
+// Copia este archivo a SupabaseConfig.cs (sin el .example) y rellena los dos valores con los
+// de tu propio proyecto en supabase.com -- Project Settings > API. AnonKey es la "anon public"
+// key, segura de embeber en un cliente porque Row Level Security es lo que protege los datos.
+internal static class SupabaseConfig
+{
+    public const string Url = "https://TU-PROYECTO.supabase.co";
+    public const string AnonKey = "TU-ANON-KEY";
+}
