@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using ClosedXML.Excel;
 using VideoGameLibraryAndroid.Application.Abstractions;
+using VideoGameLibraryAndroid.Core;
 using VideoGameLibraryAndroid.Domain.Entities;
-using VideoGameLibraryAndroid.Infrastructure.ExternalApis;
 
 namespace VideoGameLibraryAndroid.Infrastructure.Files
 {
@@ -142,7 +142,7 @@ namespace VideoGameLibraryAndroid.Infrastructure.Files
             var game = new Game { Title = title };
 
             var barcode = field("código de barras")?.Trim();
-            game.Barcode = string.IsNullOrWhiteSpace(barcode) ? null : GameApiService.NormalizeBarcode(barcode);
+            game.Barcode = string.IsNullOrWhiteSpace(barcode) ? null : BarcodeUtils.NormalizeBarcode(barcode);
 
             game.Platform = field("plataforma")?.Trim() ?? string.Empty;
             game.Publisher = field("editorial")?.Trim() ?? string.Empty;

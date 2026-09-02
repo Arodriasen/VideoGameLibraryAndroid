@@ -42,16 +42,22 @@
                     </BoxView.Background>
                 </BoxView>
 
-                <!-- EDITAR/ELIMINAR: solo icono, flotando sobre la portada (círculo blanco de
-                     fondo para que se vean igual de bien sobre cualquier carátula).
+                <!-- COMPARTIR/EDITAR/ELIMINAR: solo icono, flotando sobre la portada (círculo
+                     blanco de fondo para que se vean igual de bien sobre cualquier carátula).
                      48 px en vez de 40: mínimo táctil de Android. -->
                 <HorizontalStackLayout HorizontalOptions="End" VerticalOptions="Start" Margin="0,12,12,0" Spacing="10">
+                    <ImageButton Source="icon_share.svg" Command="{Binding ShareCommand}"
+                                 WidthRequest="48" HeightRequest="48" Padding="12" CornerRadius="24"
+                                 BackgroundColor="White"
+                                 SemanticProperties.Description="Compartir juego" />
                     <ImageButton Source="icon_pencil.svg" Command="{Binding EditCommand}"
                                  WidthRequest="48" HeightRequest="48" Padding="12" CornerRadius="24"
-                                 BackgroundColor="White" />
+                                 BackgroundColor="White"
+                                 SemanticProperties.Description="Editar juego" />
                     <ImageButton Source="icon_trash_red.svg" Command="{Binding DeleteCommand}"
                                  WidthRequest="48" HeightRequest="48" Padding="12" CornerRadius="24"
-                                 BackgroundColor="White" />
+                                 BackgroundColor="White"
+                                 SemanticProperties.Description="Eliminar juego" />
                 </HorizontalStackLayout>
 
                 <VerticalStackLayout VerticalOptions="End" Padding="16,12" Spacing="5">

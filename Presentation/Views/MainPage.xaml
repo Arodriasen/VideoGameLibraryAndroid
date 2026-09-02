@@ -21,9 +21,13 @@
         <conv:RatingToStarSourceConverter x:Key="RatingToStarSource" />
     </ContentPage.Resources>
 
+    <!-- Text en los dos ToolbarItem: no se ve (Android muestra solo el icono en la barra
+         cuando el elemento lleva IconImageSource), pero es lo que TalkBack lee como nombre
+         accesible del botón; sin él, un lector de pantalla no tiene forma de saber qué hace
+         cada icono. -->
     <ContentPage.ToolbarItems>
-        <ToolbarItem IconImageSource="icon_trash.svg" Clicked="OnTrashClicked" Order="Primary" Priority="1" />
-        <ToolbarItem IconImageSource="icon_settings.svg" Clicked="OnSettingsClicked" Order="Primary" Priority="2" />
+        <ToolbarItem Text="Papelera" IconImageSource="icon_trash.svg" Clicked="OnTrashClicked" Order="Primary" Priority="1" />
+        <ToolbarItem Text="Ajustes" IconImageSource="icon_settings.svg" Clicked="OnSettingsClicked" Order="Primary" Priority="2" />
     </ContentPage.ToolbarItems>
 
     <Grid>
@@ -53,7 +57,8 @@
                 <Grid Grid.Column="1" WidthRequest="48" HeightRequest="48">
                     <ImageButton Source="icon_filter.svg" Command="{Binding OpenFiltersCommand}"
                                  WidthRequest="48" HeightRequest="48" Padding="12"
-                                 BackgroundColor="Transparent" />
+                                 BackgroundColor="Transparent"
+                                 SemanticProperties.Description="Filtros" />
                     <Border IsVisible="{Binding HasActiveFilters}" BackgroundColor="{StaticResource Primary}"
                             StrokeShape="RoundRectangle 4" Stroke="White" StrokeThickness="1.5"
                             WidthRequest="8" HeightRequest="8"
@@ -63,7 +68,8 @@
 
                 <ImageButton Grid.Column="2" Source="icon_sort.svg" Clicked="OnSortClicked"
                              WidthRequest="48" HeightRequest="48" Padding="12"
-                             BackgroundColor="Transparent" />
+                             BackgroundColor="Transparent"
+                             SemanticProperties.Description="Ordenar" />
             </Grid>
 
             <!-- Selector colección / deseados.
@@ -198,7 +204,8 @@
                                  justa a la carátula. -->
                             <Border Margin="8" Padding="0" StrokeShape="RoundRectangle 12"
                                     Stroke="{AppThemeBinding Light={StaticResource SurfaceLineLight}, Dark={StaticResource SurfaceLineDark}}"
-                                    StrokeThickness="1">
+                                    StrokeThickness="1"
+                                    SemanticProperties.Description="{Binding Title}">
                                 <!-- Ningún VisualState de MAUI puede tocar el resaltado nativo de Android
                                      (ver nota en el CollectionView de arriba); en vez de perseguir un
                                      estado nativo, OnCardTapped enciende y apaga PressOverlay a mano
@@ -280,7 +287,8 @@
                     HeightRequest="56" WidthRequest="56" Padding="0"
                     CornerRadius="28" BackgroundColor="{StaticResource Primary}" TextColor="White"
                     HorizontalOptions="End" VerticalOptions="End" Margin="20"
-                    Command="{Binding AddCommand}" />
+                    Command="{Binding AddCommand}"
+                    SemanticProperties.Description="Añadir juego" />
         </Grid>
 
     </Grid>

@@ -8,6 +8,9 @@ using Newtonsoft.Json.Linq;
 using VideoGameLibraryAndroid.Application.Abstractions;
 using VideoGameLibraryAndroid.Domain.Entities;
 using VideoGameLibraryAndroid.Infrastructure.Logging;
+// NormalizeBarcode/GetBarcodeVariants/ExtractYear viven ahora en Core/BarcodeUtils.cs (proyecto
+// aparte sin dependencias de Android, para poder testearlos con "dotnet test" sin emulador).
+using static VideoGameLibraryAndroid.Core.BarcodeUtils;
 
 namespace VideoGameLibraryAndroid.Infrastructure.ExternalApis
 {
@@ -498,28 +501,6 @@ namespace VideoGameLibraryAndroid.Infrastructure.ExternalApis
             }
         }
 
-        // ── Normalización y variantes de código de barras ───────────────────────
-
-        public static string NormalizeBarcode(string raw)
-        {
-            return new string(raw.Where(char.IsDigit).ToArray());
-        }
-
-        // UPC-A (12 dígitos) y EAN-13 (13 dígitos, común en juegos PAL/España) son el mismo
-        // código salvo un "0" inicial — se prueban ambas formas contra cada API.
-        // internal (no private) solo para poder testearlo desde VideoGameLibrary.Tests.
-        internal static List<string> GetBarcodeVariants(string barcode)
-        {
-            var variants = new List<string> { barcode };
-
-            if (barcode.Length == 12)
-                variants.Add("0" + barcode);
-            else if (barcode.Length == 13 && barcode.StartsWith("0"))
-                variants.Add(barcode[1..]);
-
-            return variants;
-        }
-
         // ── Descarga de portada ───────────────────────────────────────────────
 
         public async Task<byte[]?> DownloadCoverAsync(string url, CancellationToken ct = default)
@@ -537,19 +518,5 @@ namespace VideoGameLibraryAndroid.Infrastructure.ExternalApis
             }
         }
 
-        // ── Utilidades ────────────────────────────────────────────────────────
-
-        // internal (no private) solo para poder testearlo desde VideoGameLibrary.Tests.
-        internal static int? ExtractYear(string text)
-        {
-            if (string.IsNullOrEmpty(text)) return null;
-            var digits = new string(text.Where(char.IsDigit).ToArray());
-            for (int i = 0; i <= digits.Length - 4; i++)
-            {
-                if (int.TryParse(digits.Substring(i, 4), out int y) && y >= 1970 && y <= DateTime.Now.Year + 1)
-                    return y;
-            }
-            return null;
-        }
     }
 }

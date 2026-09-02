@@ -30,8 +30,18 @@ jobs:
         # plantilla .example tal cual.
         run: cp Infrastructure/Accounts/SupabaseConfig.cs.example Infrastructure/Accounts/SupabaseConfig.cs
 
-      - name: Restaurar dependencias
-        run: dotnet restore VideoGameLibraryAndroid.csproj
+      - name: Restaurar dependencias (solución completa)
+        run: dotnet restore VideoGameLibraryAndroid.sln
 
-      - name: Compilar (Release, net9.0-android)
+      - name: Verificar formato (.editorconfig)
+        run: dotnet format VideoGameLibraryAndroid.sln --verify-no-changes --no-restore
+
+      - name: Ejecutar tests (Core, sin necesitar Android)
+        run: dotnet test Tests/VideoGameLibraryAndroid.Tests.csproj -c Release --no-restore
+
+      - name: Compilar la app (Release, net9.0-android)
+        # Sin ANDROID_RELEASE_* configurado como secreto en este repo, las propiedades de firma
+        # del .csproj quedan vacías y el build cae solo en el debug.keystore del SDK -- válido
+        # para verificar que compila, no para publicar un APK de verdad (eso se sigue haciendo
+        # a mano en local, con la clave real).
         run: dotnet build VideoGameLibraryAndroid.csproj -c Release -f net9.0-android --no-restore

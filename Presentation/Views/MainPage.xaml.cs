@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.Maui.ApplicationModel;
 using VideoGameLibraryAndroid.Infrastructure.Logging;
 using VideoGameLibraryAndroid.Presentation.ViewModels;
 
@@ -7,6 +8,9 @@ namespace VideoGameLibraryAndroid.Presentation.Views;
 public partial class MainPage : ContentPage
 {
     private MainViewModel? _viewModel;
+
+    // Solo se comprueba una vez por sesión de la app, no en cada reaparición de MainPage.
+    private static bool _updateChecked;
 
     public MainPage()
     {
@@ -29,6 +33,27 @@ public partial class MainPage : ContentPage
         _viewModel ??= new MainViewModel(App.Repository!, App.DialogService);
         BindingContext = _viewModel;
         await _viewModel.LoadIfNeededAsync();
+
+        if (!_updateChecked)
+        {
+            _updateChecked = true;
+            _ = CheckForUpdateAsync(); // en segundo plano, no bloquea la carga de la colección
+        }
+    }
+
+    // Mismo criterio que el escritorio (avisar dentro de la app cuando hay una release más
+    // nueva en GitHub), adaptado a lo que ya existe aquí: sin ningún Snackbar/toolkit de por
+    // medio, basta con el diálogo Sí/No que ya usa el resto de la app y Launcher.OpenAsync (ya
+    // incluido en MAUI, no añade ninguna dependencia nueva) para abrir la release en el navegador.
+    private async Task CheckForUpdateAsync()
+    {
+        var update = await App.UpdateCheckService.CheckForUpdateAsync();
+        if (update == null) return; // ya está en la última versión, o sin red, o sin releases aún
+
+        var download = await App.DialogService.ShowConfirmAsync(
+            $"Hay una versión nueva disponible ({update.Version}). ¿Quieres descargarla?", "Actualización disponible");
+        if (download)
+            await Launcher.OpenAsync(update.Url);
     }
 
     // Primer arranque de la sesión de la app: comprobar login y conectar con la base de datos.

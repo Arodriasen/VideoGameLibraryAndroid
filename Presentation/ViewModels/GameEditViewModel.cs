@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
 using VideoGameLibraryAndroid.Application.Abstractions;
+using VideoGameLibraryAndroid.Core;
 using VideoGameLibraryAndroid.Domain.Entities;
 using VideoGameLibraryAndroid.Domain.Repositories;
 using VideoGameLibraryAndroid.Infrastructure.Logging;
@@ -91,6 +93,17 @@ namespace VideoGameLibraryAndroid.Presentation.ViewModels
 
         public string PageTitle => GameId.HasValue ? "Editar juego" : "Añadir juego";
 
+        // Valores de Plataforma/Género ya usados en la colección, para el autocompletado de más
+        // abajo -- evita duplicados tontos por mayúsculas o errores tipográficos ("Nintendo
+        // Switch" vs "nintendo switch") que luego no coinciden entre sí en los filtros.
+        private List<string> _knownPlatforms = new();
+        private List<string> _knownGenres = new();
+
+        public ObservableCollection<string> PlatformSuggestions { get; } = new();
+        public ObservableCollection<string> GenreSuggestions { get; } = new();
+        public bool HasPlatformSuggestions => PlatformSuggestions.Count > 0;
+        public bool HasGenreSuggestions => GenreSuggestions.Count > 0;
+
         public GameEditViewModel(IGameRepository repository, IAppDialogService dialogService)
         {
             _repository = repository;
@@ -99,13 +112,21 @@ namespace VideoGameLibraryAndroid.Presentation.ViewModels
 
         public async Task LoadAsync()
         {
+            // Se consulta siempre (alta o edición): hace falta la colección completa para las
+            // sugerencias de Plataforma/Género, no solo para rellenar un juego ya existente.
+            var games = await _repository.GetAllAsync();
+            _knownPlatforms = games.Select(g => g.Platform)
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(p => p).ToList();
+            _knownGenres = games.SelectMany(g => TextListUtils.SplitGenres(g.Genre))
+                .Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(g => g).ToList();
+
             if (GameId == null)
             {
                 IsWishlist = WishlistParam;
                 return;
             }
 
-            var games = await _repository.GetAllAsync();
             _existingGame = games.FirstOrDefault(g => g.Id == GameId);
             if (_existingGame == null) return;
 
@@ -120,7 +141,40 @@ namespace VideoGameLibraryAndroid.Presentation.ViewModels
             Played = _existingGame.Played;
             IsWishlist = _existingGame.IsWishlist;
             Barcode = _existingGame.Barcode ?? string.Empty;
+
+            // Al autorrellenar Platform/Genre del juego ya guardado no tiene sentido mostrar
+            // sugerencias sobre el propio valor que se acaba de cargar.
+            PlatformSuggestions.Clear();
+            GenreSuggestions.Clear();
         }
+
+        partial void OnPlatformChanged(string value) => UpdateSuggestions(value, _knownPlatforms, PlatformSuggestions, nameof(HasPlatformSuggestions));
+        partial void OnGenreChanged(string value) => UpdateSuggestions(value, _knownGenres, GenreSuggestions, nameof(HasGenreSuggestions));
+
+        private void UpdateSuggestions(string text, List<string> known, ObservableCollection<string> target, string hasSuggestionsPropertyName)
+        {
+            target.Clear();
+            var trimmed = text.Trim();
+            if (trimmed.Length > 0)
+            {
+                foreach (var candidate in known)
+                {
+                    // No sugerir el mismo valor que ya está escrito tal cual (mismo criterio que
+                    // "sin filtros activos": no aporta nada, solo estorba).
+                    if (target.Count >= 5) break;
+                    if (candidate.Equals(trimmed, StringComparison.OrdinalIgnoreCase)) continue;
+                    if (candidate.Contains(trimmed, StringComparison.OrdinalIgnoreCase))
+                        target.Add(candidate);
+                }
+            }
+            OnPropertyChanged(hasSuggestionsPropertyName);
+        }
+
+        [RelayCommand]
+        private void SelectPlatformSuggestion(string suggestion) => Platform = suggestion;
+
+        [RelayCommand]
+        private void SelectGenreSuggestion(string suggestion) => Genre = suggestion;
 
         [RelayCommand]
         private async Task ScanAsync()

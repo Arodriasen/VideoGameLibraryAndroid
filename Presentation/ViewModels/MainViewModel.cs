@@ -11,6 +11,10 @@ using VideoGameLibraryAndroid.Domain.Entities;
 using VideoGameLibraryAndroid.Domain.Repositories;
 using VideoGameLibraryAndroid.Infrastructure.Logging;
 using VideoGameLibraryAndroid.Presentation.Views;
+// SplitGenres/SplitTags viven ahora en Core/TextListUtils.cs (proyecto aparte sin dependencias
+// de Android, para poder testearlos con "dotnet test" sin emulador) -- using static para no
+// tener que tocar cada sitio donde ya se llamaban como si fueran locales de esta clase.
+using static VideoGameLibraryAndroid.Core.TextListUtils;
 
 namespace VideoGameLibraryAndroid.Presentation.ViewModels
 {
@@ -144,18 +148,6 @@ namespace VideoGameLibraryAndroid.Presentation.ViewModels
         // RelayCommand&lt;int&gt; con CommandParameter numérico (ver SetRating en GameEditViewModel).
         [RelayCommand]
         private void ToggleWishlistView(string wishlist) => IsWishlistView = wishlist == "true";
-
-        // Género/Etiquetas se guardan como un único texto separado por comas (p.ej.
-        // "Acción, Aventura", así lo devuelven IGDB/RAWG cuando un juego tiene varios géneros) --
-        // se separa aquí para que "Acción" filtre por igual un juego que solo tiene ese género y
-        // uno que tiene "Acción, Aventura". Mismo criterio que MainViewModel.SplitGenres/SplitTags
-        // del escritorio. La Plataforma, a diferencia del escritorio, se compara tal cual (sin
-        // separar) porque aquí no hace falta más precisión que esa.
-        internal static string[] SplitGenres(string genre) =>
-            genre.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-
-        internal static string[] SplitTags(string tags) =>
-            tags.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 
         private void ApplyFilter()
         {

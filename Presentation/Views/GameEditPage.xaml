@@ -27,37 +27,85 @@
                 <Entry Grid.Column="0" Placeholder="Título *" Text="{Binding Title}" />
                 <ImageButton Grid.Column="1" Source="icon_search.svg" Clicked="OnSearchByNameClicked"
                              WidthRequest="44" HeightRequest="44" Padding="10"
-                             BackgroundColor="Transparent" VerticalOptions="Center" />
+                             BackgroundColor="Transparent" VerticalOptions="Center"
+                             SemanticProperties.Description="Buscar por nombre" />
             </Grid>
+            <!-- Autocompletar con valores ya usados en la colección: evita duplicados tontos por
+                 mayúsculas o errores tipográficos ("Nintendo Switch" vs "nintendo switch") que
+                 luego no coinciden entre sí en los filtros. MAUI no trae un control de
+                 autocompletado; la lista de sugerencias es un CollectionView normal debajo del
+                 Entry, visible solo mientras hay coincidencias (GameEditViewModel.UpdateSuggestions
+                 la recalcula en cada tecla). Command con RelativeSource+BindingContext (no el tipo
+                 de la ViewModel directamente) porque el BindingContext de cada fila es el propio
+                 string sugerido, no la página; mismo patrón ya usado en TrashPage para llegar al
+                 ViewModel dueño desde dentro de un DataTemplate. -->
             <Entry Placeholder="Plataforma" Text="{Binding Platform}" />
+            <CollectionView ItemsSource="{Binding PlatformSuggestions}" IsVisible="{Binding HasPlatformSuggestions}"
+                             SelectionMode="None" HeightRequest="120" Margin="0,-6,0,0">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                        <Border Padding="10,8" StrokeThickness="0" BackgroundColor="Transparent">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectPlatformSuggestionCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="{Binding .}" FontSize="14" />
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
             <Entry Placeholder="Editorial" Text="{Binding Publisher}" />
+
             <Entry Placeholder="Género" Text="{Binding Genre}" />
+            <CollectionView ItemsSource="{Binding GenreSuggestions}" IsVisible="{Binding HasGenreSuggestions}"
+                             SelectionMode="None" HeightRequest="120" Margin="0,-6,0,0">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                        <Border Padding="10,8" StrokeThickness="0" BackgroundColor="Transparent">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectGenreSuggestionCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="{Binding .}" FontSize="14" />
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
             <Entry Placeholder="Etiquetas — libres, separadas por comas" Text="{Binding Tags}" />
             <Entry Placeholder="Año" Text="{Binding YearText}" Keyboard="Numeric" />
 
             <Label Text="Puntuación" FontSize="12" TextColor="{StaticResource Gray500}" Margin="0,8,0,0" />
             <HorizontalStackLayout Spacing="10">
-                <Label Text="★" FontSize="30" TextColor="{Binding Rating, Converter={StaticResource RatingToStarColor}, ConverterParameter=1}">
+                <Label Text="★" FontSize="30" TextColor="{Binding Rating, Converter={StaticResource RatingToStarColor}, ConverterParameter=1}"
+                       SemanticProperties.Description="Puntuar con 1 estrella">
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="1" />
                     </Label.GestureRecognizers>
                 </Label>
-                <Label Text="★" FontSize="30" TextColor="{Binding Rating, Converter={StaticResource RatingToStarColor}, ConverterParameter=2}">
+                <Label Text="★" FontSize="30" TextColor="{Binding Rating, Converter={StaticResource RatingToStarColor}, ConverterParameter=2}"
+                       SemanticProperties.Description="Puntuar con 2 estrellas">
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="2" />
                     </Label.GestureRecognizers>
                 </Label>
-                <Label Text="★" FontSize="30" TextColor="{Binding Rating, Converter={StaticResource RatingToStarColor}, ConverterParameter=3}">
+                <Label Text="★" FontSize="30" TextColor="{Binding Rating, Converter={StaticResource RatingToStarColor}, ConverterParameter=3}"
+                       SemanticProperties.Description="Puntuar con 3 estrellas">
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="3" />
                     </Label.GestureRecognizers>
                 </Label>
-                <Label Text="★" FontSize="30" TextColor="{Binding Rating, Converter={StaticResource RatingToStarColor}, ConverterParameter=4}">
+                <Label Text="★" FontSize="30" TextColor="{Binding Rating, Converter={StaticResource RatingToStarColor}, ConverterParameter=4}"
+                       SemanticProperties.Description="Puntuar con 4 estrellas">
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="4" />
                     </Label.GestureRecognizers>
                 </Label>
-                <Label Text="★" FontSize="30" TextColor="{Binding Rating, Converter={StaticResource RatingToStarColor}, ConverterParameter=5}">
+                <Label Text="★" FontSize="30" TextColor="{Binding Rating, Converter={StaticResource RatingToStarColor}, ConverterParameter=5}"
+                       SemanticProperties.Description="Puntuar con 5 estrellas">
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="5" />
                     </Label.GestureRecognizers>

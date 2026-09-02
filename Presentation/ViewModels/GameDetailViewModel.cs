@@ -4,8 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.ApplicationModel.DataTransfer;
 using Microsoft.Maui.Controls;
 using VideoGameLibraryAndroid.Application.Abstractions;
+using VideoGameLibraryAndroid.Core;
 using VideoGameLibraryAndroid.Domain.Repositories;
 using VideoGameLibraryAndroid.Infrastructure.Logging;
 using VideoGameLibraryAndroid.Presentation.Views;
@@ -108,7 +110,7 @@ namespace VideoGameLibraryAndroid.Presentation.ViewModels
             Played = game.Played;
             IsWishlist = game.IsWishlist;
             AddedDateText = FormatAddedDate(game.AddedDate);
-            TagList = MainViewModel.SplitTags(game.Tags).ToList();
+            TagList = TextListUtils.SplitTags(game.Tags).ToList();
             OnPropertyChanged(nameof(TagList));
             OnPropertyChanged(nameof(HasTags));
 
@@ -161,6 +163,19 @@ namespace VideoGameLibraryAndroid.Presentation.ViewModels
                 LoggingService.LogError("Mover a lista de deseos", ex);
                 await _dialogService.ShowErrorAsync($"No se ha podido guardar el cambio:\n{ex.Message}");
             }
+        }
+
+        // Share.Default (Microsoft.Maui.ApplicationModel.DataTransfer, ya incluido en MAUI, sin
+        // paquete nuevo) abre el share sheet nativo de Android -- solo texto, para no depender de
+        // guardar la portada a un archivo temporal antes de compartir.
+        [RelayCommand]
+        private async Task ShareAsync()
+        {
+            var yearPart = string.IsNullOrEmpty(YearText) ? string.Empty : $" ({YearText})";
+            var listPart = IsWishlist ? "en mi lista de deseos" : "en mi colección";
+            var text = $"{Title} - {Platform}{yearPart}, {listPart} de Mi Colección de Juegos";
+
+            await Share.Default.RequestAsync(new ShareTextRequest { Text = text, Title = Title });
         }
 
         [RelayCommand]

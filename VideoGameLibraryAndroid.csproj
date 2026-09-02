@@ -28,6 +28,26 @@
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
+		<!-- Versión del ensamblado que compara UpdateCheckService contra el tag de la última
+		     release de GitHub (formato "vX.Y.Z"); sin esto, Assembly.GetName().Version cae al
+		     valor por defecto del SDK y las comparaciones de versión no significan nada. -->
+		<Version>1.0.0</Version>
+
+		<!-- Firma de Release con una clave propia (release.keystore, generada una vez y fuera del
+		     repo; ver .gitignore) en vez del debug.keystore compartido del SDK que usa .NET
+		     Android por defecto cuando no hay firma configurada: ese keystore es común a todo el
+		     equipo y no está pensado para builds de verdad; si algún día cambia o se pierde
+		     (reinstalar el SDK, otro PC), un nuevo Release firmado con un keystore distinto ya no
+		     se puede instalar como "actualización" sobre el que ya tengas, Android lo rechaza por
+		     firma distinta. Los cuatro valores vienen de variables de entorno (ANDROID_RELEASE_*,
+		     fijadas con setx en este equipo) para no dejar la contraseña en el .csproj versionado;
+		     si faltan (p. ej. un checkout limpio sin esas variables), MSBuild simplemente deja las
+		     propiedades vacías y vuelve a caer en el debug.keystore de siempre, sin romper el build. -->
+		<AndroidKeyStore>true</AndroidKeyStore>
+		<AndroidSigningKeyStore Condition="'$(ANDROID_RELEASE_KEYSTORE)' != ''">$(ANDROID_RELEASE_KEYSTORE)</AndroidSigningKeyStore>
+		<AndroidSigningKeyAlias Condition="'$(ANDROID_RELEASE_KEY_ALIAS)' != ''">$(ANDROID_RELEASE_KEY_ALIAS)</AndroidSigningKeyAlias>
+		<AndroidSigningKeyPass Condition="'$(ANDROID_RELEASE_KEY_PASS)' != ''">$(ANDROID_RELEASE_KEY_PASS)</AndroidSigningKeyPass>
+		<AndroidSigningStorePass Condition="'$(ANDROID_RELEASE_STORE_PASS)' != ''">$(ANDROID_RELEASE_STORE_PASS)</AndroidSigningStorePass>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
@@ -54,9 +74,10 @@
 		     de un PackIcon de Material Design, para que se noten más en la barra superior. -->
 		<MauiImage Update="Resources\Images\icon_settings.svg" Resize="True" BaseSize="30,30" />
 		<MauiImage Update="Resources\Images\icon_trash.svg" Resize="True" BaseSize="30,30" />
-		<!-- Iconos EDITAR/ELIMINAR flotantes de GameDetailPage, sobre un círculo blanco de fondo. -->
+		<!-- Iconos EDITAR/ELIMINAR/COMPARTIR flotantes de GameDetailPage, sobre un círculo blanco de fondo. -->
 		<MauiImage Update="Resources\Images\icon_pencil.svg" Resize="True" BaseSize="22,22" />
 		<MauiImage Update="Resources\Images\icon_trash_red.svg" Resize="True" BaseSize="22,22" />
+		<MauiImage Update="Resources\Images\icon_share.svg" Resize="True" BaseSize="22,22" />
 		<!-- Logo en el Shell.TitleView de MainPage, sustituye al texto del título. -->
 		<MauiImage Update="Resources\Images\app_logo.svg" Resize="True" BaseSize="32,32" />
 		<!-- Filtro/orden junto al buscador de MainPage. -->
@@ -84,6 +105,24 @@
 		<PackageReference Include="ClosedXML" Version="0.104.2" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
 		<PackageReference Include="Supabase" Version="1.6.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="Core\VideoGameLibraryAndroid.Core.csproj" />
+	</ItemGroup>
+
+	<!-- Core/ y Tests/ tienen su propio .csproj (ver ambos), pero viven dentro de esta misma
+	     carpeta de repo; sin este Remove, el glob automático de un proyecto SDK-style ("**/*.cs")
+	     los compilaría también aquí, duplicando tipos y (en el caso de Tests) tirando de xUnit
+	     dentro de la app. Mismo problema y mismo fix ya documentado para VideoGameLibrary.Tests en
+	     el escritorio. -->
+	<ItemGroup>
+		<Compile Remove="Core\**" />
+		<EmbeddedResource Remove="Core\**" />
+		<None Remove="Core\**" />
+		<Compile Remove="Tests\**" />
+		<EmbeddedResource Remove="Tests\**" />
+		<None Remove="Tests\**" />
 	</ItemGroup>
 
 </Project>

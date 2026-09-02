@@ -12,7 +12,10 @@ namespace VideoGameLibraryAndroid.Infrastructure.ExternalApis
     // No requiere token (API pública de GitHub) y falla en silencio si no hay red o el repo aún no tiene releases.
     public class UpdateCheckService : IUpdateCheckService
     {
-        private const string ReleasesApiUrl = "https://api.github.com/repos/Arodriasen/VideoGameLibrary/releases/latest";
+        // Corregido: el copiado inicial desde el escritorio (VideoGameLibrary) apuntaba al repo
+        // equivocado -- este proyecto es un repo propio (VideoGameLibraryAndroid) con sus propias
+        // releases y su propio esquema de versiones, nada que ver con las del escritorio.
+        private const string ReleasesApiUrl = "https://api.github.com/repos/Arodriasen/VideoGameLibraryAndroid/releases/latest";
 
         // Instancia compartida (mismo patrón que GameApiService._http) en vez de una nueva por
         // llamada -- aquí solo se llama una vez al arrancar, pero crear un HttpClient por llamada
