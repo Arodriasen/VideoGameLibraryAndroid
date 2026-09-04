@@ -43,7 +43,7 @@
 		     fijadas con setx en este equipo) para no dejar la contraseña en el .csproj versionado;
 		     si faltan (p. ej. un checkout limpio sin esas variables), MSBuild simplemente deja las
 		     propiedades vacías y vuelve a caer en el debug.keystore de siempre, sin romper el build. -->
-		<AndroidKeyStore>true</AndroidKeyStore>
+		<AndroidKeyStore Condition="'$(ANDROID_RELEASE_KEYSTORE)' != ''">true</AndroidKeyStore>
 		<AndroidSigningKeyStore Condition="'$(ANDROID_RELEASE_KEYSTORE)' != ''">$(ANDROID_RELEASE_KEYSTORE)</AndroidSigningKeyStore>
 		<AndroidSigningKeyAlias Condition="'$(ANDROID_RELEASE_KEY_ALIAS)' != ''">$(ANDROID_RELEASE_KEY_ALIAS)</AndroidSigningKeyAlias>
 		<AndroidSigningKeyPass Condition="'$(ANDROID_RELEASE_KEY_PASS)' != ''">$(ANDROID_RELEASE_KEY_PASS)</AndroidSigningKeyPass>
