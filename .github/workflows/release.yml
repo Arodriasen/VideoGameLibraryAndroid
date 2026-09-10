@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Instalar workload MAUI Android
+        run: dotnet workload install maui-android
+
+      - name: Restaurar SupabaseConfig.cs real
+        # A diferencia de build.yml (que solo necesita compilar y usa la plantilla .example), el
+        # APK que se reparte a usuarios reales tiene que apuntar al proyecto Supabase de verdad
+        # para que el login/sincronización funcionen -- por eso aquí se reconstruye el archivo
+        # real desde un secreto en vez de copiar SupabaseConfig.cs.example.
+        run: echo "${{ secrets.SUPABASE_CONFIG_CS_BASE64 }}" | base64 -d > Infrastructure/Accounts/SupabaseConfig.cs
+
+      - name: Restaurar keystore de firma
+        run: echo "${{ secrets.ANDROID_RELEASE_KEYSTORE_BASE64 }}" | base64 -d > release.keystore
+
+      - name: Restaurar dependencias (solución completa)
+        run: dotnet restore VideoGameLibraryAndroid.sln
+
+      - name: Compilar y firmar el APK (Release)
+        env:
+          ANDROID_RELEASE_KEYSTORE: ${{ github.workspace }}/release.keystore
+          ANDROID_RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_RELEASE_KEY_ALIAS }}
+          ANDROID_RELEASE_KEY_PASS: ${{ secrets.ANDROID_RELEASE_KEY_PASS }}
+          ANDROID_RELEASE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_STORE_PASS }}
+        run: dotnet build VideoGameLibraryAndroid.csproj -c Release -f net9.0-android --no-restore
+
+      - name: Publicar release en GitHub
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          apk=$(find bin/Release/net9.0-android -maxdepth 1 -name "*-Signed.apk")
+          gh release create "${{ github.ref_name }}" "$apk" \
+            --title "${{ github.ref_name }}" \
+            --generate-notes
