@@ -12,6 +12,23 @@ jobs:
     # escritorio (a diferencia de VideoGameLibrary, que es WPF y solo compila en windows-latest).
     runs-on: ubuntu-latest
 
+    # GameRepositoryTests necesita un PostgreSQL real en localhost:5432 (ver comentario en
+    # Tests/GameRepositoryTests.cs) -- a diferencia de VideoGameLibrary (windows-latest, que ya
+    # trae Postgres preinstalado y hay que reconfigurar a mano), en ubuntu-latest lo más simple
+    # es este contenedor de servicio nativo de Actions en vez de instalar/arrancar nada.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: Admin123!
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
 
