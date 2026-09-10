@@ -10,6 +10,7 @@ using VideoGameLibraryAndroid.Application.Abstractions;
 using VideoGameLibraryAndroid.Domain.Entities;
 using VideoGameLibraryAndroid.Domain.Repositories;
 using VideoGameLibraryAndroid.Infrastructure.Logging;
+using VideoGameLibraryAndroid.Infrastructure.Widgets;
 using VideoGameLibraryAndroid.Presentation.Views;
 // SplitGenres/SplitTags viven ahora en Core/TextListUtils.cs (proyecto aparte sin dependencias
 // de Android, para poder testearlos con "dotnet test" sin emulador) -- using static para no
@@ -102,6 +103,7 @@ namespace VideoGameLibraryAndroid.Presentation.ViewModels
             {
                 _allGames = await _repository.GetAllAsync();
                 ApplyFilter();
+                WidgetSnapshotService.Update(_allGames);
             }
             catch (Exception ex)
             {

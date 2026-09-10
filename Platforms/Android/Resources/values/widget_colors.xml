@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mismos tokens que Resources/Styles/Colors.xaml, versión Android nativa para el widget,
+         ya que un AppWidgetProvider no puede leer un ResourceDictionary de MAUI. Mantener en
+         sincronía a mano si esos colores cambian. -->
+    <color name="widget_primary">#673AB7</color>
+    <color name="widget_surface_card">#EDE7F6</color>
+    <color name="widget_surface_line">#DCD3EC</color>
+    <color name="widget_on_surface">#241F2E</color>
+    <color name="widget_text_muted">#6E6E6E</color>
+</resources>

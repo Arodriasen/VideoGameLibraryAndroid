@@ -100,9 +100,7 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.8" />
 
 		<!-- Mismas versiones que VideoGameLibrary (escritorio) para Domain/Infrastructure portados tal cual -->
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="ClosedXML" Version="0.104.2" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
 		<PackageReference Include="Supabase" Version="1.6.2" />
 	</ItemGroup>

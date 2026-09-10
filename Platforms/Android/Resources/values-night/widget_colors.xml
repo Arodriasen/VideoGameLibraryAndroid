@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Contraparte oscura de values/widget_colors.xml. Android resuelve esta carpeta solo
+         según el tema del sistema, sin código, mismo resultado que AppThemeBinding en XAML. -->
+    <color name="widget_primary">#673AB7</color>
+    <color name="widget_surface_card">#241F2E</color>
+    <color name="widget_surface_line">#3A3346</color>
+    <color name="widget_on_surface">#EDEAF3</color>
+    <color name="widget_text_muted">#A79FB5</color>
+</resources>

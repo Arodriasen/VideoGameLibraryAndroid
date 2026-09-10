@@ -7,8 +7,7 @@ namespace VideoGameLibraryAndroid.Infrastructure.Logging
 {
     public static class LoggingService
     {
-        private static readonly string LogFolder = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "VideoGameLibrary", "logs");
+        private static readonly string LogFolder = Path.Combine(FileSystem.AppDataDirectory, "logs");
         private static readonly object _lock = new object();
         private const string Separator = "--------------------------------------------------------------------------------";
 

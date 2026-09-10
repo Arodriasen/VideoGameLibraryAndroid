@@ -48,15 +48,16 @@ public partial class GameCandidatePickerPage : ContentPage
         return await tcs.Task;
     }
 
-    // El TapGestureRecognizer hereda el BindingContext del Border al que está enganchado (el
-    // CandidateItem de esa fila) -- no hace falta un ViewModel con RelayCommand solo para esto.
+    // El sender de Tapped es el Border que tiene el TapGestureRecognizer, no el propio
+    // TapGestureRecognizer (ver el comentario largo de MainPage.xaml.cs OnCardTapped, donde se
+    // decompiló Microsoft.Maui.Controls.dll para confirmarlo) -- este handler tenía el mismo bug
+    // de "is TapGestureRecognizer" que nunca se cumple, así que tocar una fila no hacía nada.
     private async void OnCandidateTapped(object? sender, TappedEventArgs e)
     {
-        if (sender is TapGestureRecognizer { BindingContext: CandidateItem item })
-        {
-            _tcs.TrySetResult(item.Game);
-            await Shell.Current.GoToAsync("..");
-        }
+        if (sender is not Border { BindingContext: CandidateItem item }) return;
+
+        _tcs.TrySetResult(item.Game);
+        await Shell.Current.GoToAsync("..");
     }
 
     private async void OnCancelClicked(object? sender, System.EventArgs e)

@@ -183,10 +183,23 @@ namespace VideoGameLibraryAndroid.Infrastructure.ExternalApis
 
             var trimmed = name.Trim();
 
-            var fromIgdb = await SearchIgdbCandidatesAsync(trimmed, ct);
-            if (fromIgdb.Count > 0) return fromIgdb;
+            var candidates = await SearchIgdbCandidatesAsync(trimmed, ct);
+            if (candidates.Count == 0)
+                candidates = await SearchRawgCandidatesAsync(trimmed, ct);
 
-            return await SearchRawgCandidatesAsync(trimmed, ct);
+            // A diferencia de SearchCandidatesByBarcodeAsync (que pasa cada candidato por
+            // EnrichFromNameAsync, que sí descarga la portada), aquí solo se rellenaba CoverUrl --
+            // GameCandidatePickerPage se quedaba dependiendo de que Image cargase la portada
+            // directamente por URL, un camino que el resto de la app nunca ejercita (todas las
+            // portadas ya guardadas viven como bytes en CoverData). Se descargan en paralelo
+            // porque puede haber hasta MaxNameSearchCandidates (25) candidatos.
+            await Task.WhenAll(candidates.Select(async candidate =>
+            {
+                if (!string.IsNullOrEmpty(candidate.CoverUrl) && (candidate.CoverData == null || candidate.CoverData.Length == 0))
+                    candidate.CoverData = await DownloadCoverAsync(candidate.CoverUrl, ct);
+            }));
+
+            return candidates;
         }
 
         // ── Fase B: enriquecimiento por nombre, solo rellena huecos ────────────
