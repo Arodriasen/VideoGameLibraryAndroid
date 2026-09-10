@@ -133,16 +133,20 @@ namespace VideoGameLibraryAndroid.Widgets
                 }
             }
 
+            var pendingIntentFlags = OperatingSystem.IsAndroidVersionAtLeast(23)
+                ? PendingIntentFlags.Immutable | PendingIntentFlags.UpdateCurrent
+                : PendingIntentFlags.UpdateCurrent;
+
             var openApp = PendingIntent.GetActivity(context, 0,
                 new Intent(context, typeof(MainActivity)),
-                PendingIntentFlags.Immutable | PendingIntentFlags.UpdateCurrent);
+                pendingIntentFlags);
             if (openApp != null)
                 views.SetOnClickPendingIntent(Resource.Id.widget_root, openApp);
 
             var rerollIntent = new Intent(context, typeof(TodayWidgetProvider));
             rerollIntent.SetAction(ActionReroll);
             var reroll = PendingIntent.GetBroadcast(context, appWidgetId, rerollIntent,
-                PendingIntentFlags.Immutable | PendingIntentFlags.UpdateCurrent);
+                pendingIntentFlags);
             if (reroll != null)
                 views.SetOnClickPendingIntent(Resource.Id.widget_reroll, reroll);
 
